@@ -1,3 +1,4 @@
+/*原代码编译器为11.2.0 G++ 64bit*/
 #include <bits/stdc++.h>
 #include <Windows.h>
 #include <fstream>
