@@ -1,4 +1,3 @@
-/*原代码编译器为11.2.0 G++ 64bit*/
 #include <bits/stdc++.h>
 #include <Windows.h>
 #include <fstream>
@@ -9,20 +8,15 @@
 using namespace std;
 
 /*更新记录*/
+//0.0.2版本
 //202210221454二级指令改为字符型，存在死循环bug，改回int
 //202210221519弱权限模块
 //202210221519兼容性路径
+//0.0.3版本
 //202210221618随机数产生器优化
-
-/*debug模块*/
-int debug = 1;
-void deb() {
-	printf("deb %d\n", debug);
-	debug++;
-}
-
-/*一些定义的全局变量*/
-//int FileNum = 0;
+//202210261640界面优化
+//202210261649解决二级返回一级的吞字符bug
+//202210261706本地密码文件报错功能
 
 /*指令简写对照格式*/
 struct order_struct {
@@ -67,15 +61,13 @@ int FileRead0(const char *filename, mm_struct str) {
 	if (!fscanf(fp, "%s", str.mm_web))return 0; //3
 	if (!fscanf(fp, "%s", str.mm_name))return 0; //4
 	if (!fscanf(fp, "%s", str.mm_phone))return 0; //5
-	//fgets(str->mm_account);//函数原形错了
-	//fprintf(fp,"%d",aa);
 	fclose(fp);
 	fp = NULL;
 	return 1;
 }
 
 /*密码信息文件读取函数*/ /*由于传值调用与传址调用问题，已移入主函数*/
-int FileRead(const char *filename, mm_struct str) {
+/*int FileRead(const char *filename, mm_struct str) {
 	
 	FILE *fp = NULL;
 	fp = fopen(filename, "r");
@@ -90,7 +82,7 @@ int FileRead(const char *filename, mm_struct str) {
 	fclose(fp);
 	fp = NULL;
 	return 1;
-}
+}*/
 
 /*自动计数的记录密码文件的信息文件的读取函数*/ /*暂时未解决bug*/
 int FileInfoReadPlus(const char *filename, bool See) {
@@ -143,7 +135,6 @@ int FileScan(const char *filename);
 /*本想自动扫描指定目录下的所有文件名，
   但是据在网上收集的资料，
   都用到了io.h库和一些其他句柄，
-  为保证代码“查重率”不至于过高，
   暂时放下这个思路，
   改为在一个文件中预先记录简略信息。
  */
@@ -160,12 +151,12 @@ int RandomNumber(int min, int max)
 
 int main() { //int argc,char** argv)
 	/*掩盖真实路径，优化视图*/
-	system("@title 密码管理器0.0.2 -10232228");
+	system("@title Password Manager 0.0.3 -10261648");
 	system("@color 0a");
 	
 	/*弱权限模块*/ /*后期再加强*/
 	int randnumber=RandomNumber(111112,999998);int ifuser;
-	printf("身份验证 %d\n",randnumber);
+	printf("##Login## \n#Account: %d\n#Passwrd: ",randnumber);
 	ifuser=(99-randnumber%100)*100+(randnumber/100000*9);
 	scanf("%d",&randnumber);
 	if(randnumber!=ifuser)
@@ -176,26 +167,34 @@ int main() { //int argc,char** argv)
 	else
 	{
 		system("cls");
-		system("@title 密码管理器0.0.2   $已登录$");
+		system("@title Password Manager 0.0.3");
 	}
 	
 	/*记录命令数目与命令对照关系*/
 	char TerminalOrder[20];
 	int FileNum = FileSumFromInfoRead(InfoFileD);
+	if(!FileNum)
+	{
+		printf("# Error 404-0\n\n##Local Files for Password NOT Found!##");
+		return 0;
+	}
 	order_struct Orders[FileNum];
 	FileInfoRead(InfoFileD, 0, Orders);
-	
 	/*指令读取循环*/
 	bool whileflag1 = 1;
 	while (whileflag1) {
+		printf("\n$$");
 		scanf("%s", TerminalOrder);
 		if (!strcmp(TerminalOrder, "ls")) {
+			printf("\n");
 			FileInfoRead(InfoFileD, 1 , Orders);
 			continue;
 		}else if (!strcmp(TerminalOrder, "cls")) {
 			system("cls");
 			continue;}
 		else {
+			/*进入一级指令文件匹配循环*/
+			bool FirstOrderMatch=1;//进入匹配的标志,修复离开二级指令循环时弹出一级指令不存在的bug
 			int i = 0;
 			for (i = 0; i < FileNum; i++){
 				if (!strcmp(TerminalOrder, Orders[i].MinOrder)) {
@@ -216,59 +215,54 @@ int main() { //int argc,char** argv)
 					fclose(fp);
 					fp = NULL;
 					
-					//二级指令读取循环/*
+					/*二级指令读取循环*//*代码过于冗杂，暂时无解决方案*/
 					bool whileflag2 = 1;
 					while (whileflag2) {
 						int x;
-						printf("\n请输入二级指令:\n");
+						printf("\n>>");
 						scanf("%d", &x);
 						switch (x) {
 						case 0:
 							setClipbar(str.fileName);
-							printf("复制成功，filename\n");
+							printf("<< Filename copied!\n");
 							break;
 						case 1:
 							setClipbar(str.mm_account);
-							printf("复制成功，account\n");
+							printf("<< Account copied!\n");
 							break;
 						case 2:
 							setClipbar(str.mm_password);
-							printf("复制成功，password\n");
+							printf("<< Password copied!\n");
 							break;
 						case 3:
 							setClipbar(str.mm_web);
-							printf("复制成功，website\n");
+							printf("<< Website copied!\n");
 							break;
 						case 4:
 							setClipbar(str.mm_name);
-							printf("复制成功，name\n");
+							printf("<< Name copied!\n");
 							break;
 						case 5:
 							setClipbar(str.mm_phone);
-							printf("复制成功，phone\n");
+							printf("<< Phone copied!\n");
 							break;
 						case 6:
 							whileflag2 = 0;
+							FirstOrderMatch=0;
 							break;
 						case 7:
 							return 0;
 							break;
-							default:
-								printf("\n二级指令不存在!\n");
-								break;
+						default:
+							printf("<< Error 404-2\n");
+							break;
 						}
 					}
-				}
-				
+				}		
 			}
-			printf("\n一级指令不存在!\n");	
-			
+			if(FirstOrderMatch)printf("<< Error 404-1\n");	
 		}
-		system("pause>nul");
 	}
-
-	/*调用剪切板写入函数部分*/
-	//if (!setClipbar("欢迎使用剪切板写入功能"))printf("\n复制失败!!\n");
 	return 0;
 	/*
 	char arg1[10];
@@ -285,7 +279,6 @@ int main() { //int argc,char** argv)
 			scanf("%s",TerminalOrder);
 			if(strcmp(TerminalOrder,"ls"))
 			{
-
 			}
 		}
 	}*/
@@ -295,15 +288,5 @@ int main() { //int argc,char** argv)
 	int aa;
 	cin>>aa;
 	  printf("\n1321");*/
-	/*文件读写部分*/
-	/*
-	char fileName[]="D:\\1.txt";
-	FILE *fp=NULL;
-	fp=fopen(fileName,"w");
-	fprintf(fp,"%d",aa);
-	fclose(fp);
-	fp=NULL;
-	 */
-
 
 }
