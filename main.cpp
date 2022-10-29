@@ -264,29 +264,4 @@ int main() { //int argc,char** argv)
 		}
 	}
 	return 0;
-	/*
-	char arg1[10];
-	sscanf(argv[1],"%s",arg1);
-	if(arg1[0]=='-')//命令行调用式运行
-	{
-		printf("hhhh");
-	}
-	else//直接运行,模拟终端
-	{
-		char TerminalOrder[20];
-		while(1)
-		{
-			scanf("%s",TerminalOrder);
-			if(strcmp(TerminalOrder,"ls"))
-			{
-			}
-		}
-	}*/
-	/*
-	char aaaa[1];
-	gets(aaaa);
-	int aa;
-	cin>>aa;
-	  printf("\n1321");*/
-
 }
