@@ -1,4 +1,5 @@
 #include <bits/stdc++.h>
+#include <conio.h>
 #include <Windows.h>
 #include <fstream>
 #include <random>
@@ -17,6 +18,17 @@ using namespace std;
 //202210261640界面优化
 //202210261649解决二级返回一级的吞字符bug
 //202210261706本地密码文件报错功能
+//202211221420密码不显示设置
+
+/*debug模块*/
+int debug = 1;
+void deb() {
+	printf("deb %d\n", debug);
+	debug++;
+}
+
+/*一些定义的全局变量*/
+//int FileNum = 0;
 
 /*指令简写对照格式*/
 struct order_struct {
@@ -61,13 +73,15 @@ int FileRead0(const char *filename, mm_struct str) {
 	if (!fscanf(fp, "%s", str.mm_web))return 0; //3
 	if (!fscanf(fp, "%s", str.mm_name))return 0; //4
 	if (!fscanf(fp, "%s", str.mm_phone))return 0; //5
+	//fgets(str->mm_account);//函数原形错了
+	//fprintf(fp,"%d",aa);
 	fclose(fp);
 	fp = NULL;
 	return 1;
 }
 
 /*密码信息文件读取函数*/ /*由于传值调用与传址调用问题，已移入主函数*/
-/*int FileRead(const char *filename, mm_struct str) {
+int FileRead(const char *filename, mm_struct str) {
 	
 	FILE *fp = NULL;
 	fp = fopen(filename, "r");
@@ -82,7 +96,7 @@ int FileRead0(const char *filename, mm_struct str) {
 	fclose(fp);
 	fp = NULL;
 	return 1;
-}*/
+}
 
 /*自动计数的记录密码文件的信息文件的读取函数*/ /*暂时未解决bug*/
 int FileInfoReadPlus(const char *filename, bool See) {
@@ -151,17 +165,25 @@ int RandomNumber(int min, int max)
 
 int main() { //int argc,char** argv)
 	/*掩盖真实路径，优化视图*/
-	system("@title Password Manager 0.0.3 -10261648");
+	system("@title Password Manager 0.0.3+++");
 	system("@color 0a");
 	
 	/*弱权限模块*/ /*后期再加强*/
 	int randnumber=RandomNumber(111112,999998);int ifuser;
 	printf("##Login## \n#Account: %d\n#Passwrd: ",randnumber);
-	ifuser=(99-randnumber%100)*100+(randnumber/100000*9);
-	scanf("%d",&randnumber);
+	ifuser=(99-randnumber%100)*100+(randnumber/100000*9);//此为简单密码算法示例，经组会提醒，和正在使用版本不同。
+	//scanf("%d",&randnumber);
+	/*更新密码读入模块*/
+	char tmp=0;randnumber=0;
+	do{
+		randnumber*=10;
+		if(tmp)randnumber+=tmp-'0';
+		tmp=_getch();
+	}while(tmp!='\r'&&tmp!='\n');
+	printf("%d %d",randnumber,ifuser);
 	if(randnumber!=ifuser)
 	{
-		printf("您没有访问权限!\n");
+		printf("# Error 403 \n\n##Wrong password!##\n");
 		return 0;
 	}
 	else
@@ -205,7 +227,6 @@ int main() { //int argc,char** argv)
 					/*密码文件的读取函数-移入主函数*/
 					FILE *fp = NULL;
 					fp = fopen(Orders[i].Order, "r");
-					char kk[20];
 					fscanf(fp, "%s", str.fileName); //0
 					fscanf(fp, "%s", str.mm_account); //1
 					fscanf(fp, "%s", str.mm_password); //2
@@ -263,5 +284,7 @@ int main() { //int argc,char** argv)
 			if(FirstOrderMatch)printf("<< Error 404-1\n");	
 		}
 	}
-	return 0;
+return 0;
+
+
 }
