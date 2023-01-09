@@ -13,6 +13,10 @@
 
 3 注意，目前版本密码储存文件并不安全，请不要用于有安全性要求的用途。
 
-4 Finally, we reiterate that code contributor reserves all rights, please respect intellectual property rights.
+## Warning, Bug detected! 注意，发现重大BUG！
 
-4 最后重申，代码贡献者保留一切权利，请尊重知识产权。
+该版本程序在使用过程中被发现有重大漏洞，表现为读取部分明文文本时会无视换行符，最后复制到剪切板的为两行拼接结果。为了您和您的密码的安全，请暂停使用该版本，新的版本正在使用Base64重构中。
+
+This version of the program was found to have major vulnerabilities during use, which was manifested by ignoring line breaks when reading part of plaintext text, and finally copying the result of two-line stitching to the clipboard. For the security of you and your password, please suspend this version, the new version is being refactored with Base64.
+
+
