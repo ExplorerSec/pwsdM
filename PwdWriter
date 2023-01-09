@@ -1,0 +1,131 @@
+#include <bits/stdc++.h>
+#include <conio.h>
+#include <Windows.h>
+//std::string Code("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/");
+std::string Code("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_");
+/*base64编码*/
+std::string Base64Encode(std::string data)
+{
+	size_t len = data.size() / 3;
+	std::string out;
+	const unsigned char* input = (unsigned char*)data.data();
+	
+	for (size_t i = 0; i < len; i++){
+		out += Code[input[0] >> 2];
+		out += Code[((input[0] & 0x03) << 4 )+ (input[1] >> 4)];
+		out += Code[((input[1] & 0x0f) << 2) + (input[2] >> 6)];
+		out += Code[input[2] & 0x3f];
+		input += 3;
+	}
+	
+	len = data.size();
+	if (len % 3 == 1) {
+		out += Code[input[0] >> 2];
+		out += Code[(input[0] & 0x03) << 4];
+		out += "==";
+	}
+	else if (len % 3 == 2) {
+		out += Code[input[0] >> 2];
+		
+		out += Code[((input[0] & 0x03) << 4) + (input[1] >> 4)];
+		out += Code[(input[1] & 0x0f) << 2];
+		out += "=";
+	}
+	
+	return out;
+}
+
+unsigned char GetBaseValue(char data)
+{
+	if (data > 'a' - 1) {
+		return data - 'a' + 26;
+	}
+	else if (data > 'A' - 1) {
+		return data - 'A';
+	}
+	else if (data > '0' - 1) {
+		return data - '0' + 52;
+	}
+	else if (data == '+') {
+		return 62;
+	}
+	else if (data == '/') {
+		return 63;
+	}
+	return 0;
+}
+#include <bits/stdc++.h>
+#include <conio.h>
+#include <Windows.h>
+/*base64解码*/
+std::string Base64Decode(std::string data)
+{
+	std::string out;
+	unsigned char value[4];
+	size_t len = data.size() / 4 - 1;
+	const unsigned char* input = (unsigned char*)data.data();
+	for (size_t i = 0; i < len; i++) {    
+		value[0] = GetBaseValue(input[0]);
+		value[1] = GetBaseValue(input[1]);
+		value[2] = GetBaseValue(input[2]);
+		value[3] = GetBaseValue(input[3]);
+		input += 4;
+		
+		out.push_back((value[0] << 2) + (value[1] >> 4));
+		out.push_back((value[1] << 4) + (value[2] >> 2));
+		out.push_back((value[2] << 6) + value[3]);
+	}
+	value[0] = GetBaseValue(input[0]);
+	value[1] = GetBaseValue(input[1]);
+	out.push_back((value[0] << 2) + (value[1] >> 4));
+	if (input[2] != '=') {
+		value[2] = GetBaseValue(input[2]);
+		out.push_back((value[1] << 4) + (value[2] >> 2));
+	}
+	if (input[3] != '=') {
+		value[3] = GetBaseValue(input[3]);
+		out.push_back((value[2] << 6) + value[3]);
+	}
+	
+	return out;
+}
+int main(int argc,char**argv)
+{
+	system("@title 简易Base64Text读写器");
+	char tmp=0;
+		printf("请选择模式:");
+		while(tmp!='w'&&tmp!='r'){
+			scanf("%c",&tmp);
+		}	
+		printf("\n");
+		if(tmp=='w')
+		{
+			tmp=0;
+			char filename[30]="file.txt";
+			printf("请输入文件名:");
+			scanf("%s",filename);
+			FILE* fp_w=fopen(filename,"a+");
+			for(int i=0;i<6;i++)
+			{
+				std::string code;
+				std::cin>>code;
+				fprintf(fp_w,"%s\n",(Base64Encode(code)).c_str());
+			}
+		}
+		else if(tmp=='r')
+		{
+			tmp=0;
+			char filename[30]="file.txt";
+			scanf("%s",filename);
+			FILE* fp_r=fopen(filename,"r");
+			for(int i=0;i<6;i++)
+			{
+				char s[100]="";
+				fscanf(fp_r,"%s",s);
+				std::string code=s;
+				std::cout<<Base64Decode(code)<<std::endl;
+			}
+		}
+		printf("\n\nEND\n");
+		getchar();
+}
